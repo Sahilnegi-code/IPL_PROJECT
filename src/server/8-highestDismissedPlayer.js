@@ -23,8 +23,11 @@ fs.createReadStream("../data/deliveries.csv")
       highestDismissedPlayer[dismissedPlayer] =
         (highestDismissedPlayer[dismissedPlayer] || 0) + 1;
     }
-    fs.writeFileSync(
-      outputPath,
-      JSON.stringify(highestDismissedPlayer, null, 2)
-    );
+    let arrayResult = Object.entries(highestDismissedPlayer);
+    arrayResult.sort((player1, player2) => {
+      if (Number(player1[1]) > Number(player2[1])) return -1;
+      return 0;
+    });
+
+    fs.writeFileSync(outputPath, JSON.stringify(arrayResult[0][0], null, 2));
   });
