@@ -3,7 +3,13 @@ const path = require("path");
 const csv = require("csv-parser");
 const deliveries = [];
 let wonTossAndMatchFreq = {};
-let outputPath = path.join(__dirname, "..", "public", "wonTossAndMatch.json");
+let outputPath = path.join(
+  __dirname,
+  "..",
+  "public",
+  "output",
+  "wonTossAndMatch.json"
+);
 // Find the number of times each team won the toss and also won the match
 
 fs.createReadStream("../data/matches.csv")
