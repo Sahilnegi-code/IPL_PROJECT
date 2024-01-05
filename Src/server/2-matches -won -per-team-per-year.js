@@ -1,60 +1,37 @@
-const fs = require('fs');
-const path = require('path')
-const csv = require('csv-parser')
+const fs = require("fs");
+const path = require("path");
+const csv = require("csv-parser");
 const results = [];
-let  outputPath = path.join(__dirname , '..',"public", "output","matchesWonPerTeamPerYear.json");
+let outputPath = path.join(
+  __dirname,
+  "..",
+  "public",
+  "output",
+  "matchesWonPerTeamPerYear.json"
+);
+// give the output of numberOfMatchesPerTeamPerYear
+const numberOfMatchesPerTeamPerYear = (matchesDetailsInformation) => {
+  let objNumberOfMatchesPerTeamPerYear = Object.values(
+    matchesDetailsInformation
+  ).reduce((accumulator, matchDetails) => {
+    const { season, team1, team2 } = matchDetails;
 
-fs.createReadStream('../data/matches.csv')
-  .pipe(csv())
-  .on('data', (data) => results.push(data))
-  .on('end', () => {
-    let result = numberOfMatchesPerTeamPerYear(results);
+    accumulator[season] = accumulator[season] || {};
 
-    fs.writeFileSync(outputPath, JSON.stringify(result, null, 2));
+    accumulator[season][team1] = (accumulator[season][team1] || 0) + 1;
+    accumulator[season][team2] = (accumulator[season][team2] || 0) + 1;
 
-  });
-  
-// give the output of numberOfMatchesPerTeamPerYear  
-const numberOfMatchesPerTeamPerYear = (matchesDetailsInformation) =>{
-    
-    let objNumberOfMatchesPerTeamPerYear = {};
+    return accumulator;
+  }, {});
+  // 2-matches -won -per-team-per-year.js
+  fs.createReadStream("../data/matches.csv")
+    .pipe(csv())
+    .on("data", (data) => results.push(data))
+    .on("end", () => {
+      let result = numberOfMatchesPerTeamPerYear(results);
 
-    for( let key in  matchesDetailsInformation  ){
-        let matchesDetails= matchesDetailsInformation[key];
-        if(  !objNumberOfMatchesPerTeamPerYear.hasOwnProperty(matchesDetails.season) ){
-            let noOfMatchesTeamPlayed = {};
+      fs.writeFileSync(outputPath, JSON.stringify(result, null, 2));
+    });
 
-            noOfMatchesTeamPlayed[matchesDetails.team1] = 1;
-
-            noOfMatchesTeamPlayed[matchesDetails.team2] = 1;
-
-            objNumberOfMatchesPerTeamPerYear[matchesDetails.season] = noOfMatchesTeamPlayed;
-
-        }else{
-
-          let details = objNumberOfMatchesPerTeamPerYear[matchesDetails.season];
-
-          let team1 = matchesDetails.team1;
-
-          let team2 = matchesDetails.team2;
-
-          if(details.hasOwnProperty(team1)) {
-            details[team1] = details[team1]  + 1
-          }
-          else{
-            details[team1] = 1;
-          }
-
-          if(details.hasOwnProperty(team2)){
-            details[team2] = details[team2] +1;
-          }
-          else{
-            details[team2] = 1;
-          }
-          objNumberOfMatchesPerTeamPerYear[ matchesDetailsInformation.season  ] =  details;
-        }
-    }
-
-return objNumberOfMatchesPerTeamPerYear;
+  return objNumberOfMatchesPerTeamPerYear;
 };
-
