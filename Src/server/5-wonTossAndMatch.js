@@ -16,25 +16,25 @@ fs.createReadStream("../data/matches.csv")
   .pipe(csv())
   .on("data", (data) => deliveries.push(data))
   .on("end", () => {
-    for (let objInform of deliveries) {
-      let wonTeam = objInform.winner;
-      let wonToss = objInform.toss_winner;
-      if (wonTossAndMatchFreq.hasOwnProperty(wonTeam) === false) {
-        let tempfreq = {};
-        tempfreq.winner = (tempfreq[wonTeam] || 0) + 1;
-        wonTossAndMatchFreq[wonTeam] = tempfreq;
-      } else {
-        let tempFreq = wonTossAndMatchFreq[wonTeam];
-        tempFreq.winner = (tempFreq.winner || 0) + 1;
-      }
 
-      if (wonTossAndMatchFreq.hasOwnProperty(wonToss) === false) {
-        let tempfreq = {};
-        tempfreq[wonToss] = (tempfreq[wonToss] || 0) + 1;
-      } else {
-        let tempFreq = wonTossAndMatchFreq[wonToss];
-        tempFreq.toss_winner = (tempFreq.toss_winner || 0) + 1;
-      }
-    }
+    const processMatchInfo = (deliveries, frequencyObj, key) => {
+      deliveries.forEach(objInform => {
+        const wonTeam = objInform[key];
+        if (frequencyObj.hasOwnProperty(wonTeam) === false) {
+          const tempfreq = {};
+          tempfreq[key] = (tempfreq[wonTeam] || 0) + 1;
+          frequencyObj[wonTeam] = tempfreq;
+        } else {
+          const tempFreq = frequencyObj[wonTeam];
+          tempFreq[key] = (tempFreq[key] || 0) + 1;
+        }
+      });
+    };
+    
+    const wonTossAndMatchFreq = {};
+    
+    processMatchInfo(deliveries, wonTossAndMatchFreq, 'winner');
+    processMatchInfo(deliveries, wonTossAndMatchFreq, 'toss_winner');
+
     fs.writeFileSync(outputPath, JSON.stringify(wonTossAndMatchFreq, null, 2));
   });
