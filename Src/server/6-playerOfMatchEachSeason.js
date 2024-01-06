@@ -15,51 +15,49 @@ fs.createReadStream("../data/matches.csv")
   .pipe(csv())
   .on("data", (data) => matches.push(data))
   .on("end", () => {
-    let resultPlayerOfMatchEachSeason = {};
+    const processPlayerOfMatch = (matches) => {
+      let playerOfMatchArray = matches.reduce(
+        (playerOfMatchEachSeason, objInform) => {
+          const season = objInform.season;
 
-    for (let objInform of matches) {
-      if (playerOfMatchEachSeason.hasOwnProperty(objInform.season) === false) {
-        let players2DArray = [];
-        let playersArray = [];
-        playersArray.push(1);
-        playersArray.push(objInform.player_of_match);
-        players2DArray.push(playersArray);
-        playerOfMatchEachSeason[objInform.season] = players2DArray;
-      } else {
-        let arrayOfSeason = playerOfMatchEachSeason[objInform.season];
-        console.log(arrayOfSeason);
-        let hasPlayer = false;
-        for (let player of arrayOfSeason) {
-          if (player[1] === objInform.player_of_match) {
-            player[0]++;
-            hasPlayer = true;
+          if (playerOfMatchEachSeason.hasOwnProperty(season) === false) {
+            playerOfMatchEachSeason[season] = [[1, objInform.player_of_match]];
+          } else {
+            const arrayOfSeason = playerOfMatchEachSeason[season];
+            const index = arrayOfSeason.findIndex(
+              (player) => player[1] === objInform.player_of_match
+            );
+
+            if (index !== -1) {
+              arrayOfSeason[index][0]++;
+            } else {
+              arrayOfSeason.push([1, objInform.player_of_match]);
+            }
           }
-        }
-        if (hasPlayer === false) {
-          let playersArray = [];
-          playersArray.push(1);
-          playersArray.push(objInform.player_of_match);
-          arrayOfSeason = [...arrayOfSeason, playersArray];
-          // console.log(arrayOfSeason);
-          playerOfMatchEachSeason[objInform.season] = arrayOfSeason;
-        }
+
+          return playerOfMatchEachSeason;
+        },
+        {}
+      );
+
+      return playerOfMatchArray;
+    };
+
+    const sortAndExtractTopPlayer = (playerOfMatchEachSeason) => {
+      const result = {};
+      for (let year in playerOfMatchEachSeason) {
+        const season = playerOfMatchEachSeason[year];
+        season.sort((season1, season2) => season2[0] - season1[0]);
+        result[year] = season[0][1];
       }
-    }
+      return result;
+    };
 
-    for (let year in playerOfMatchEachSeason) {
-      let season = playerOfMatchEachSeason[year];
-      season.sort((season1, season2) => {
-        if (season1[0] > season2[0]) {
-          return -1;
-        }
+    const playerOfMatchEachSeason = processPlayerOfMatch(matches);
+    const resultPlayerOfMatchEachSeason = sortAndExtractTopPlayer(
+      playerOfMatchEachSeason
+    );
 
-        return +1;
-      });
-    }
-
-    for (let year in playerOfMatchEachSeason) {
-      resultPlayerOfMatchEachSeason[year] = playerOfMatchEachSeason[year][0][1];
-    }
     fs.writeFileSync(
       outputPath,
       JSON.stringify(resultPlayerOfMatchEachSeason, null, 2)
