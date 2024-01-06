@@ -24,24 +24,40 @@ fs.createReadStream("../data/deliveries.csv")
         arrayMatches.push(data);
       })
       .on("end", () => {
-        const objSeasonAndidOfMatches = (arrayMatches) => {
-          const teamName = [];
-
-          for (let key in arrayMatches) {
-            if (arrayMatches[key].season === "2016") {
-              teamName.push(arrayMatches[key].id);
+        const filterMatchesBySeason = (matches, season) => {
+          let tempMatches = matches.filter((match) => {
+            if (match.season === season) {
+              return true;
             }
-          }
+            return false;
+          });
 
-          return teamName;
+          return tempMatches;
         };
-        arrayMatches = objSeasonAndidOfMatches(arrayMatches);
 
-        for (let key in results) {
-          if (arrayMatches.includes(results[key].match_id)) {
-            extraRunsIn2016[results[key].batting_team] = (parseInt(extraRunsIn2016[results[key].batting_team]) || 0) + parseInt(results[key].extra_runs);
-          }
-        }
+        const extractMatchIds = (matches) => {
+          let matchesId = matches.map((match) => {
+            return match.id;
+          });
+         return matchesId;
+        };
+
+        const calculateExtraRuns = (results, matchIds) =>
+          results.reduce((extraRuns, result) => {
+            if (matchIds.includes(result.match_id)) {
+              const team = result.batting_team;
+              extraRuns[team] = (parseInt(extraRuns[team]) || 0) + parseInt(result.extra_runs);
+            }
+            return extraRuns;
+          }, {});
+
+        const objSeasonAndidOfMatches = (arrayMatches, season) => {
+          const matchesInSeason = filterMatchesBySeason(arrayMatches, season);
+          const matchIds = extractMatchIds(matchesInSeason);
+          return calculateExtraRuns(results, matchIds);
+        };
+
+        const extraRunsIn2016 = objSeasonAndidOfMatches(arrayMatches, "2016");
 
         fs.writeFileSync(outputPath, JSON.stringify(extraRunsIn2016, null, 2));
       });
