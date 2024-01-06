@@ -21,86 +21,93 @@ fs.createReadStream("../data/matches.csv")
     for (let matchKey in matches) {
       seasonAndId[matches[matchKey].id] = Number(matches[matchKey].season);
     }
-    let seasonWithEachMatchedObj = {};
+
     fs.createReadStream("../data/deliveries.csv")
       .pipe(csv())
       .on("data", (data) => deliveries.push(data))
       .on("end", () => {
-        for (let deliveriesInform in deliveries) {
-          if (
-            seasonWithEachMatchedObj.hasOwnProperty(
-              seasonAndId[deliveries[deliveriesInform].match_id]
-            ) === false
-          ) {
-            let season = seasonAndId[deliveries[deliveriesInform].match_id];
-            let matchId = deliveries[deliveriesInform].match_id;
-            let batsman = deliveries[deliveriesInform].batsman;
-            seasonWithEachMatchedObj[season] = {};
-            seasonWithEachMatchedObj[season][matchId] = {};
-            seasonWithEachMatchedObj[season][matchId][batsman] =
-              String(season) + "_" + String(matchId) + "_" + String(batsman);
-          } else {
-            let season = seasonAndId[deliveries[deliveriesInform].match_id];
-            let matchId = deliveries[deliveriesInform].match_id;
-            let batsman = deliveries[deliveriesInform].batsman;
-            if (
-              seasonWithEachMatchedObj[season].hasOwnProperty(matchId) === false
-            ) {
-              seasonWithEachMatchedObj[season][matchId] = {};
-              seasonWithEachMatchedObj[season][matchId][batsman] =
-                String(season) + "_" + String(matchId) + "_" + String(batsman);
-            } else {
-              seasonWithEachMatchedObj[season][matchId][batsman] =
-                String(season) + "_" + String(matchId) + "_" + String(batsman);
+        const processDeliveries = (
+          deliveries,
+          seasonAndId,
+          seasonWithEachMatchedObj,
+          runsAndBowlsOfBatsman,
+          strikeRateForEachSeason
+        ) => {
+          deliveries.forEach((delivery) => {
+            const matchId = delivery.match_id;
+            const batsman = delivery.batsman;
+            const season = seasonAndId[matchId];
+            const key = `${season}_${matchId}_${batsman}`;
+
+            if (!seasonWithEachMatchedObj.hasOwnProperty(season)) {
+              seasonWithEachMatchedObj[season] = {};
             }
-          }
-        }
-        let runsAndBowlsOfBatsman = {};
 
-        for (deliveriesInform in deliveries) {
-          let season = String(
-            seasonAndId[deliveries[deliveriesInform].match_id]
-          );
-          let ball = deliveries[deliveriesInform].ball;
-          let matchId = String(deliveries[deliveriesInform].match_id);
-          let batsman = String(deliveries[deliveriesInform].batsman);
-          let total_runs = deliveries[deliveriesInform].total_runs;
-          let key = season + "_" + matchId + "_" + batsman;
-          if (runsAndBowlsOfBatsman.hasOwnProperty(key) === false) {
-            runsAndBowlsOfBatsman[key] = {};
-            runsAndBowlsOfBatsman[key].runs = Number(total_runs);
-            runsAndBowlsOfBatsman[key].ball = Number(ball);
-          } else {
-            runsAndBowlsOfBatsman[key].runs += Number(total_runs);
-            runsAndBowlsOfBatsman[key].ball += 1;
-          }
-        }
+            if (!seasonWithEachMatchedObj[season].hasOwnProperty(matchId)) {
+              seasonWithEachMatchedObj[season][matchId] = {};
+            }
 
-        function calcStrikeRate(playersRunAndBall) {
-          let noOfBalls = playersRunAndBall.ball;
-          let noOfRuns = playersRunAndBall.runs;
-          let calc = noOfRuns / noOfBalls;
-          return calc * 100;
-        }
+            seasonWithEachMatchedObj[season][matchId][batsman] = key;
 
-        for (let season in seasonWithEachMatchedObj) {
-          for (let matchId in seasonWithEachMatchedObj[season]) {
-            for (let playerIndex in seasonWithEachMatchedObj[season][matchId]) {
-              let playerRunsAndBall =
-                runsAndBowlsOfBatsman[
-                  seasonWithEachMatchedObj[season][matchId][playerIndex]
-                ];
-              let calculate = calcStrikeRate(playerRunsAndBall);
+            if (!runsAndBowlsOfBatsman.hasOwnProperty(key)) {
+              runsAndBowlsOfBatsman[key] = {
+                runs: Number(delivery.total_runs),
+                ball: Number(delivery.ball),
+              };
+            } else {
+              runsAndBowlsOfBatsman[key].runs += Number(delivery.total_runs);
+              runsAndBowlsOfBatsman[key].ball += 1;
+            }
+          });
+        };
 
-              if (strikeRateForEachSeason.hasOwnProperty(season) === false) {
-                strikeRateForEachSeason[season] = {};
-                strikeRateForEachSeason[season][playerIndex] = calculate;
-              } else {
+        const calculateStrikeRateForEachSeason = (
+          seasonWithEachMatchedObj,
+          runsAndBowlsOfBatsman,
+          strikeRateForEachSeason
+        ) => {
+          for (let season in seasonWithEachMatchedObj) {
+            for (let matchId in seasonWithEachMatchedObj[season]) {
+              for (let playerIndex in seasonWithEachMatchedObj[season][
+                matchId
+              ]) {
+                const key =
+                  seasonWithEachMatchedObj[season][matchId][playerIndex];
+                const playerRunsAndBall = runsAndBowlsOfBatsman[key];
+                const calculate = calcStrikeRate(playerRunsAndBall);
+
+                if (!strikeRateForEachSeason.hasOwnProperty(season)) {
+                  strikeRateForEachSeason[season] = {};
+                }
+
                 strikeRateForEachSeason[season][playerIndex] = calculate;
               }
             }
           }
-        }
+        };
+
+        const calcStrikeRate = (playersRunAndBall) => {
+          const noOfBalls = playersRunAndBall.ball;
+          const noOfRuns = playersRunAndBall.runs;
+          return (noOfRuns / noOfBalls) * 100;
+        };
+
+        let seasonWithEachMatchedObj = {};
+        let runsAndBowlsOfBatsman = {};
+        let strikeRateForEachSeason = {};
+
+        processDeliveries(
+          deliveries,
+          seasonAndId,
+          seasonWithEachMatchedObj,
+          runsAndBowlsOfBatsman,
+          strikeRateForEachSeason
+        );
+        calculateStrikeRateForEachSeason(
+          seasonWithEachMatchedObj,
+          runsAndBowlsOfBatsman,
+          strikeRateForEachSeason
+        );
 
         fs.writeFileSync(
           outputPath,

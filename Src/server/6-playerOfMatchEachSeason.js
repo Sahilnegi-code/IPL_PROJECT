@@ -54,9 +54,7 @@ fs.createReadStream("../data/matches.csv")
     };
 
     const playerOfMatchEachSeason = processPlayerOfMatch(matches);
-    const resultPlayerOfMatchEachSeason = sortAndExtractTopPlayer(
-      playerOfMatchEachSeason
-    );
+    const resultPlayerOfMatchEachSeason = sortAndExtractTopPlayer( playerOfMatchEachSeason   );
 
     fs.writeFileSync(
       outputPath,
