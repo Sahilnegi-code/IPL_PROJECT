@@ -39,13 +39,13 @@ fs.createReadStream("../data/matches.csv")
             const season = seasonAndId[matchId];
             const key = `${season}_${matchId}_${batsman}`;
 
-            if (!seasonWithEachMatchedObj.hasOwnProperty(season)) {
-              seasonWithEachMatchedObj[season] = {};
-            }
+              if (!seasonWithEachMatchedObj.hasOwnProperty(season)) {
+                seasonWithEachMatchedObj[season] = {};
+              }
 
-            if (!seasonWithEachMatchedObj[season].hasOwnProperty(matchId)) {
-              seasonWithEachMatchedObj[season][matchId] = {};
-            }
+              if (!seasonWithEachMatchedObj[season].hasOwnProperty(matchId)) {
+                seasonWithEachMatchedObj[season][matchId] = {};
+              }
 
             seasonWithEachMatchedObj[season][matchId][batsman] = key;
 
