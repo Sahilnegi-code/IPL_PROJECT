@@ -15,21 +15,10 @@ fs.createReadStream("../data/deliveries.csv")
   .pipe(csv())
   .on("data", (data) => matches.push(data))
   .on("end", () => {
-    // for (let matchesDetails in matches) {
-    //   if (matches[matchesDetails].player_dismissed === "") {
-    //     continue;
-    //   }
-    //   let dismissedPlayer = matches[matchesDetails].player_dismissed;
-    //   highestDismissedPlayer[dismissedPlayer] =
-    //     (highestDismissedPlayer[dismissedPlayer] || 0) + 1;
-    // }
-    // let arrayResult = Object.entries(highestDismissedPlayer);
-    // arrayResult.sort((player1, player2) => {
-    //   if (Number(player1[1]) > Number(player2[1])) return -1;
-    //   return 0;
-    // });
+    // Function to filter dismissed players from matches
     const filterDismissedPlayers = (matches) => {
       const matchDetails = matches.filter((match) => {
+        // Check if the player was dismissed
         if (match.player_dismissed !== "") {
           return true;
         }
@@ -38,10 +27,12 @@ fs.createReadStream("../data/deliveries.csv")
       return matchDetails;
     };
 
+    // Function to count occurrences of dismissed players
     const countDismissedPlayers = (dismissedPlayers) => {
       const objDismissedPlayer = dismissedPlayers.reduce(
         (highestDismissedPlayer, match) => {
           const dismissedPlayer = match.player_dismissed;
+          // Increment the count for the dismissed player
           highestDismissedPlayer[dismissedPlayer] =
             (highestDismissedPlayer[dismissedPlayer] || 0) + 1;
           return highestDismissedPlayer;
@@ -52,6 +43,7 @@ fs.createReadStream("../data/deliveries.csv")
       return objDismissedPlayer;
     };
 
+    // Function to sort dismissed players based on the count
     const sortDismissedPlayers = (highestDismissedPlayer) => {
       const highestdismissedPlayerArray = Object.entries(
         highestDismissedPlayer
@@ -59,9 +51,16 @@ fs.createReadStream("../data/deliveries.csv")
       return highestdismissedPlayerArray;
     };
 
+    // Copy the matches to a new variable
     const matchesDetails = matches;
+
+    // Filter dismissed players from match details
     const dismissedPlayers = filterDismissedPlayers(matchesDetails);
+
+    // Count occurrences of dismissed players
     const highestDismissedPlayer = countDismissedPlayers(dismissedPlayers);
+
+    // Sort dismissed players based on the count
     const resulthighestDismissedPlayer = sortDismissedPlayers(
       highestDismissedPlayer
     );
