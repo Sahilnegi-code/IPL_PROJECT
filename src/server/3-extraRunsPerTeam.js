@@ -24,22 +24,59 @@ fs.createReadStream("../data/deliveries.csv")
         arrayMatches.push(data);
       })
       .on("end", () => {
-        const objSeasonAndidOfMatches = (arrayMatches) => {
-          const teamName = [];
+        // Initialize an empty object to store the number of matches played per team per year
+        let objNumberOfMatchesPerTeamPerYear = {};
 
-          for (let key in arrayMatches) {
-            if (arrayMatches[key].season === "2016") {
-              teamName.push(arrayMatches[key].id);
+        // Iterate through each match in the matchesDetailsInformation object
+        for (let key in matchesDetailsInformation) {
+          // Get details of the current match
+          let matchesDetails = matchesDetailsInformation[key];
+
+          // Check if the season is not already a property in the result object
+          if (
+            !objNumberOfMatchesPerTeamPerYear.hasOwnProperty(
+              matchesDetails.season
+            )
+          ) {
+            // If not, create a new object to store the number of matches played by each team in that season
+            let noOfMatchesTeamPlayed = {};
+
+            // Initialize the count for team1 and team2 to 1
+            noOfMatchesTeamPlayed[matchesDetails.team1] = 1;
+            noOfMatchesTeamPlayed[matchesDetails.team2] = 1;
+
+            // Assign the new object to the season property in the result object
+            objNumberOfMatchesPerTeamPerYear[matchesDetails.season] =
+              noOfMatchesTeamPlayed;
+          } else {
+            // If the season already exists in the result object, update the match count for each team
+
+            // Get the existing details for the season
+            let details =
+              objNumberOfMatchesPerTeamPerYear[matchesDetails.season];
+
+            // Get the team names for the current match
+            let team1 = matchesDetails.team1;
+            let team2 = matchesDetails.team2;
+
+            // Update the match count for team1
+            if (details.hasOwnProperty(team1)) {
+              details[team1] = details[team1] + 1;
+            } else {
+              // If team1 is not present in the details, initialize the count to 1
+              details[team1] = 1;
             }
-          }
 
-          return teamName;
-        };
-        arrayMatches = objSeasonAndidOfMatches(arrayMatches);
+            // Update the match count for team2
+            if (details.hasOwnProperty(team2)) {
+              details[team2] = details[team2] + 1;
+            } else {
+              // If team2 is not present in the details, initialize the count to 1
+              details[team2] = 1;
+            }
 
-        for (let key in results) {
-          if (arrayMatches.includes(results[key].match_id)) {
-            extraRunsIn2016[results[key].batting_team] = (parseInt(extraRunsIn2016[results[key].batting_team]) || 0) + parseInt(results[key].extra_runs);
+            // Update the details in the result object for the current season
+            objNumberOfMatchesPerTeamPerYear[matchesDetails.season] = details;
           }
         }
 
