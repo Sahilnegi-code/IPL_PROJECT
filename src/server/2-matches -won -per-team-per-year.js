@@ -15,8 +15,11 @@ fs.createReadStream("../data/matches.csv")
   .on("data", (data) => results.push(data))
   .on("end", () => {
     let result = numberOfMatchesPerTeamPerYear(results);
-
-    fs.writeFileSync(outputPath, JSON.stringify(result, null, 2));
+    try {
+      fs.writeFileSync(outputPath, JSON.stringify(result, null, 2));
+    } catch {
+      console.log("File is not created");
+    }
   });
 
 // give the output of numberOfMatchesPerTeamPerYear

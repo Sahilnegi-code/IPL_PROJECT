@@ -131,10 +131,13 @@ fs.createReadStream("../data/matches.csv")
             }
           }
         }
-        
-        fs.writeFileSync(
-          outputPath,
-          JSON.stringify(strikeRateForEachSeason, null, 2)
-        );
+        try {
+          fs.writeFileSync(
+            outputPath,
+            JSON.stringify(strikeRateForEachSeason, null, 2)
+          );
+        } catch {
+          console.log("File is not Created ");
+        }
       });
   });

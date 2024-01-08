@@ -92,9 +92,12 @@ fs.createReadStream("../data/deliveries.csv")
       if (bowler1[0] < bowler2[0]) return -1;
       return 1;
     });
-
-    fs.writeFileSync(
-      outputPath,
-      JSON.stringify(arrayBowlersEconomySuperOver[0], null, 2)
-    );
+    try {
+      fs.writeFileSync(
+        outputPath,
+        JSON.stringify(arrayBowlersEconomySuperOver[0], null, 2)
+      );
+    } catch {
+      console.log("File is not Created ");
+    }
   });

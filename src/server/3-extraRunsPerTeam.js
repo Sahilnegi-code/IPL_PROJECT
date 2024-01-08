@@ -34,9 +34,9 @@ fs.createReadStream("../data/deliveries.csv")
 
           // Check if the season is not already a property in the result object
           if (
-            !objNumberOfMatchesPerTeamPerYear.hasOwnProperty(
+            objNumberOfMatchesPerTeamPerYear.hasOwnProperty(
               matchesDetails.season
-            )
+            ) === false
           ) {
             // If not, create a new object to store the number of matches played by each team in that season
             let noOfMatchesTeamPlayed = {};
@@ -60,7 +60,7 @@ fs.createReadStream("../data/deliveries.csv")
             let team2 = matchesDetails.team2;
 
             // Update the match count for team1
-            if (details.hasOwnProperty(team1)) {
+            if (details.hasOwnProperty(team1) === true) {
               details[team1] = details[team1] + 1;
             } else {
               // If team1 is not present in the details, initialize the count to 1
@@ -68,7 +68,7 @@ fs.createReadStream("../data/deliveries.csv")
             }
 
             // Update the match count for team2
-            if (details.hasOwnProperty(team2)) {
+            if (details.hasOwnProperty(team2) === true) {
               details[team2] = details[team2] + 1;
             } else {
               // If team2 is not present in the details, initialize the count to 1
@@ -79,7 +79,10 @@ fs.createReadStream("../data/deliveries.csv")
             objNumberOfMatchesPerTeamPerYear[matchesDetails.season] = details;
           }
         }
-
+        try{
         fs.writeFileSync(outputPath, JSON.stringify(extraRunsIn2016, null, 2));
+      } catch {
+        console.log("File is not Created ");
+      }
       });
   });

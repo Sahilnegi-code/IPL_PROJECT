@@ -43,6 +43,9 @@ arrayResult.sort((player1, player2) => {
   return 0;
 });
 
-
+  try{
     fs.writeFileSync(outputPath, JSON.stringify(arrayResult[0][0], null, 2));
+  } catch {
+    console.log("File is not Created ");
+  }
   });

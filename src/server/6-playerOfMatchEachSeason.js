@@ -72,8 +72,12 @@ fs.createReadStream("../data/matches.csv")
       resultPlayerOfMatchEachSeason[year] = playerOfMatchEachSeason[year][0][1];
     }
 
-    fs.writeFileSync(
-      outputPath,
-      JSON.stringify(resultPlayerOfMatchEachSeason, null, 2)
-    );
+    try {
+      fs.writeFileSync(
+        outputPath,
+        JSON.stringify(resultPlayerOfMatchEachSeason, null, 2)
+      );
+    } catch {
+      console.log("File is not created .");
+    }
   });

@@ -98,10 +98,15 @@ fs.createReadStream("../data/matches.csv")
           let val = top10EconomicPlayer[bowler][1];
           resultTop10EconomicBowler.push(val);
         }
-
+        try{
         fs.writeFileSync(
           outputPath,
           JSON.stringify(resultTop10EconomicBowler, null, 2)
         );
+      } catch {
+        console.log("File is not Created ");
+      }
+
+
       });
   });
