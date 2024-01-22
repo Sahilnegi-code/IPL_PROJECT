@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+  </head>
+  <body>
+    <div id="chart-container" style="width: 100%; height: 100vh"></div>
+  </body>
+  <script>
+    // Fetch data from the server
+    fetch("http://localhost:3000/output/strikeRateOfEachSeason", {
+      method: "POST",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        var seriesData = [];
+        for (var year in data) {
+          var series = {
+            name: year,
+            data: [],
+          };
+
+          for (var player in data[year]) {
+            series.data.push({
+              name: player,
+              y: data[year][player],
+            });
+          }
+
+          seriesData.push(series);
+        }
+        let options = {
+          chart: {
+            type: "column",
+          },
+          title: {
+            text: "Player Performance Over the Years",
+          },
+          xAxis: {
+            type: "category",
+          },
+          yAxis: {
+            title: {
+              text: "Performance Percentage",
+            },
+          },
+          series: seriesData,
+        };
+
+        // Render the chart
+        Highcharts.chart("chart-container", options);
+      });
+  </script>
+
+  <script src="../server/index.js"></script>
+</html>

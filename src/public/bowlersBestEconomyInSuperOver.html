@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+  </head>
+  <body>
+    <div id="chart-container" style="width: 100%; height: 100vh"></div>
+  </body>
+  <script>
+    // Fetch data from the server
+    fetch("http://localhost:3000/output/bowlersBestEconomyInSuperOver", {
+      method: "POST",
+    })
+      .then((response) => response.json())
+      .then((obj) => {
+        let xAxisCategories = [obj.BowlerName];
+        let yAxisData = Object.values(obj);
+        console.log(yAxisData);
+        // Configuration object
+        let options = {
+          chart: {
+            type: "column", // You can change this to 'column' or other types based on your preference
+          },
+          title: {
+            text: " Bowlers Best Ecomnomy in Super Over",
+          },
+          xAxis: {
+            categories: xAxisCategories,
+            title: {
+              text: "X Axis",
+            },
+          },
+          yAxis: {
+            title: {
+              text: "Y Axis",
+            },
+          },
+          series: [
+            {
+              name: "Data",
+              data: yAxisData,
+            },
+          ],
+        };
+        // Render the chart
+        Highcharts.chart("chart-container", options);
+      });
+  </script>
+
+  <script src="../server/index.js"></script>
+</html>

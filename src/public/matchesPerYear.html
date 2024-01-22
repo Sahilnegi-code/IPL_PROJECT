@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+  </head>
+  <body>
+    <div id="chart-container" style="width: 100%; height: 100vh"></div>
+  </body>
+  <script>
+    // Fetch data from the server
+    fetch("http://localhost:3000/output/matchesPerYear", {
+      method: "POST",
+    })
+      .then((response) => response.json())
+      .then((val) => {
+        // Configuration object
+        console.log(Object.values(val));
+        var options = {
+          chart: {
+            type: "column",
+          },
+          xAxis: {
+            categories: Object.keys(val),
+            title: {
+              text: "Year ",
+            },
+            gridLineWidth: 5,
+            lineWidth: 4,
+          },
+          yAxis: {
+            title: {
+              text: "No Of Matches",
+            },
+          },
+          title: {
+            text: "Matches Per Year",
+          },
+          series: [
+            {
+              data: Object.values(val),
+            },
+          ],
+        };
+
+        // Render the chart
+        Highcharts.chart("chart-container", options);
+      });
+  </script>
+
+  <script src="../server/index.js"></script>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+  </head>
+  <body>
+    <div id="chart-container" style="width: 100%; height: 100vh"></div>
+  </body>
+  <script>
+    // Fetch data from the server
+    fetch("http://localhost:3000/output/playerOfMatchEachSeason", {
+      method: "POST",
+    })
+      .then((response) => response.json())
+      .then((obj) => {
+        // Configuration object
+        // Extracting series data
+        var seriesData = [];
+        for (var year in obj) {
+          seriesData.push({
+            name: year,
+            y: 1,
+            label: obj[year],
+          });
+        }
+
+        var options = {
+          chart: {
+            type: "line",
+          },
+          title: {
+            text: "Top Run-Scorer in Each IPL Year",
+          },
+          xAxis: {
+            categories: Object.keys(obj),
+          },
+          yAxis: {
+            title: {
+              text: "Top Scorer",
+            },
+            labels: {
+              enabled: false,
+            },
+          },
+          series: [
+            {
+              name: "Top Scorer",
+              data: seriesData,
+              marker: {
+                symbol: "circle",
+              },
+            },
+          ],
+          plotOptions: {
+            series: {
+              dataLabels: {
+                enabled: true,
+                format: "{point.label}",
+              },
+            },
+          },
+        };
+
+        Highcharts.chart("chart-container", options);
+      });
+  </script>
+
+  <script src="../server/index.js"></script>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+  </head>
+  <body>
+    <div id="chart-container" style="width: 100%; height: 100vh"></div>
+  </body>
+  <script>
+    // Fetch data from the server
+    fetch("http://localhost:3000/output/highestDismissedPlayer", {
+      method: "POST",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        let chartData = Object.keys(data).map((key) => ({
+          name: key,
+          y: data[key],
+        }));
+        console.log("ChartData", chartData);
+        // console.log(Object.values(val));
+        var options = {
+          chart: {
+            type: "pie",
+          },
+          title: {
+            text: "Data Chart",
+          },
+          series: [
+            {
+              name: "Player Scores",
+              data: chartData,
+            },
+          ],
+        };
+        Highcharts.chart("chart-container", options);
+      });
+  </script>
+
+  <script src="../server/index.js"></script>
+</html>
